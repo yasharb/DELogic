@@ -20,7 +20,7 @@ public class Retention {
     
     //eventually (for ARPU) may care about whole series of events,
     
-    
+    //NEW COMMENT
     
     
     
