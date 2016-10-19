@@ -6,8 +6,8 @@ public class DataEagleAlpha {
     public static void main(String[] args) {
         DBUtility dbu = new DBUtility();
         //maybe have it read directories from wherever IT is, or from a config or whatever later.
-        dbu.createNewDatabase("test.db", "jdbc:sqlite:C:/Users/Gavin/Dropbox/VancouverStuff/DECode/Databases/");
-        dbu.csvToDatabase("C:/Users/Gavin/Dropbox/VancouverStuff/DECode/Databases/Fruitcraft.txt","jdbc:sqlite:C:/Users/Gavin/Dropbox/VancouverStuff/DECode/Databases/test.db" );
+        dbu.createNewDatabase("sibche.db", "jdbc:sqlite:C:/Users/Gavin/DataEagleGit/");
+        dbu.csvToDatabase("C:/Users/Gavin/DataEagleGit/SibchePrototype.csv","jdbc:sqlite:C:/Users/Gavin/DataEagleGit/sibche.db");
         
         //Start for now with a variable of interest, more like ARPU case
         //Find correlations in general for users?
