@@ -109,6 +109,9 @@ public class DBUtility {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+                //###########################add something that finds out what line new content begins at (larger time value than in database)
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!and then use that below for all the br.readlines to skip to, so that we can use this to upate too.
+                //then add in that bit commented below where you look once again for unique hash values in the new portions of the csv.
             }
 
             //Now read everything into database
@@ -148,8 +151,8 @@ public class DBUtility {
                 stmt.executeUpdate("COMMIT");
                 System.out.println(j);
             }
-            stmt.executeUpdate("CREATE UNIQUE INDEX user ON T (user)");
-            stmt.executeUpdate("CREATE UNIQUE INDEX event ON T (event)");
+            stmt.executeUpdate("CREATE INDEX user ON T (user)");
+            stmt.executeUpdate("CREATE INDEX event ON T (event)");
             stmt.close();
             c.close();
         } catch (Exception e) {
