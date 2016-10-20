@@ -8,6 +8,7 @@ public class DataEagleAlpha {
         //maybe have it read directories from wherever IT is, or from a config or whatever later.
         dbu.createNewDatabase("sibche.db", "jdbc:sqlite:C:/Users/Gavin/DataEagleGit/");
         dbu.csvToDatabase("C:/Users/Gavin/DataEagleGit/SibchePrototype.csv","jdbc:sqlite:C:/Users/Gavin/DataEagleGit/sibche.db");
+        dbu.getUser(1);
         
         //Start for now with a variable of interest, more like ARPU case
         //Find correlations in general for users?

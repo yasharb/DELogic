@@ -10,6 +10,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.ResultSet;
 import java.util.HashMap;
 import java.io.FileOutputStream;
 import java.io.FileInputStream;
@@ -18,8 +19,7 @@ import java.io.ObjectInputStream;
 
 /**
  *
- * @author Gavin Jenkins
- * To do:
+ * @author Gavin Jenkins To do:
  *
  * Make more java friendly versions of some SQL functions, like just a thing
  * that just inputs variable name and has a method like "getNext", but
@@ -32,6 +32,41 @@ import java.io.ObjectInputStream;
  * fix indices
  */
 public class DBUtility {
+
+    private static Connection c;
+    private static Statement stmt;
+
+    public static void DBUtilityInit(String fileCSV, String fileDB) {
+        try {
+            c = DriverManager.getConnection(fileDB);
+            stmt = c.createStatement();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Integer[][] getUser(Integer user) {
+        try {
+            ResultSet queryResult = stmt.executeQuery("SELECT * FROM T WHERE user == '??'");
+            System.out.println(queryResult.getInt(0));
+            System.out.println(queryResult.getInt(1));
+            System.out.println(queryResult.getInt(2));
+            System.out.println(queryResult.getInt(3));
+            queryResult.next();
+            System.out.println(queryResult.getInt(0));
+            System.out.println(queryResult.getInt(1));
+            System.out.println(queryResult.getInt(2));
+            System.out.println(queryResult.getInt(3));
+            queryResult.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        //Integer[][] answer = new Integer[queryResult.][];
+        Integer[][] test = new Integer[1][1];
+        test[0][0] = 5;
+        return test;
+        
+    }
 
     public static void queueField(String field) {
         //designed to be a method for "start buffering blah blah field in java so I can start harvesting lines for basic stats and such intuitively"
@@ -54,8 +89,6 @@ public class DBUtility {
         String sqlAppend;
         String sql;
         String date = "";
-        Connection c;
-        Statement stmt;
         Boolean done = false;
         Boolean newDB = true; //manual entry parameter for now, testing
         int linesAtOnce = 100000;
@@ -64,10 +97,10 @@ public class DBUtility {
         HashMap<String, Integer> stringToEvent = new HashMap<>();
         HashMap<Integer, String> eventToString = new HashMap<>();
 
+        DBUtilityInit(fileCSV, fileDB);
+
         try {
-            c = DriverManager.getConnection(fileDB);
             br = new BufferedReader(new FileReader(fileCSV));
-            stmt = c.createStatement();
             line = br.readLine();
             System.out.println(line);
             if (newDB) { //Will have standardized format, so just hardcoded... all are INTs because I convet unique values to integer codes first for sanity.
@@ -112,6 +145,7 @@ public class DBUtility {
                 //###########################add something that finds out what line new content begins at (larger time value than in database)
                 //!!!!!!!!!!!!!!!!!!!!!!!!!!!and then use that below for all the br.readlines to skip to, so that we can use this to upate too.
                 //then add in that bit commented below where you look once again for unique hash values in the new portions of the csv.
+                //add indexing again.
             }
 
             //Now read everything into database
