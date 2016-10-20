@@ -22,22 +22,22 @@ public class MobileEvent {
     private Double uniqueScore = (double) 5; //raw score for first unique visit to the event for a user. Optional constructor to specify.
     //initial visit currently hardcoded as 5 points by comparison.
     
-    public void MobileEvent (Integer eventIDInput){
+    public MobileEvent (Integer eventIDInput){
         eventID = eventIDInput;
     }
     
-    public void MobileEvent (Integer eventIDInput, Double exp_Constant){
+    public MobileEvent (Integer eventIDInput, Double exp_Constant){
         eventID = eventIDInput;
         expConstant = exp_Constant;
     }
     
-    public void MobileEvent (Integer eventIDInput, Double exp_Constant, Double unique_Score){
+    public MobileEvent (Integer eventIDInput, Double exp_Constant, Double unique_Score){
         eventID = eventIDInput;
         expConstant = exp_Constant;
         uniqueScore = unique_Score;
     }
     
-    public void Add (Integer userID, Integer nextEventID){
+    public void add (Integer userID, Integer nextEventID){
         //update hashes, numVisitors, importance.
         if (links.containsKey(nextEventID)){
             int numVisits = links.get(nextEventID);
@@ -48,34 +48,34 @@ public class MobileEvent {
         if (users.containsKey(userID)){
             int numVisits = users.get(userID);
             users.replace(userID, numVisits++);
-            importance = importance + Falloff(numVisits);
+            importance = importance + falloff(numVisits);
         } else{
             links.put(userID,1);
-            importance = importance + Falloff(1);
+            importance = importance + falloff(1);
         }
         numVisitors++;
         numLinks++;
     }
     
-    public void Add (Integer userID){
+    public void add (Integer userID){
         //update hashes, numVisitors, importance, for last event available for a user
         if (users.containsKey(userID)){
             int numVisits = users.get(userID);
             users.replace(userID, numVisits++);
-            importance = importance + Falloff(numVisits);
+            importance = importance + falloff(numVisits);
         } else{
             links.put(userID,1);
-            importance = importance + Falloff(1);
+            importance = importance + falloff(1);
         }
         numVisitors++;
     }
 
-    public void ScoreCalc(){
+    public void scoreCalc(){
         lossRate = (double)(1 - (numLinks / numVisitors));
         score = lossRate * importance;
     }
     
-    private Double Falloff(Integer numVisitsOneUser){
+    private Double falloff(Integer numVisitsOneUser){
         if(numVisitsOneUser == 1){
             return (double) uniqueScore;
         }
