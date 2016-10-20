@@ -19,15 +19,22 @@ public class MobileEvent {
     private Double lossRate = (double)1;
     private Double score = (double)0;
     private Double expConstant = (double) 10; //higher = more gradual falloff of exponent function for redundant visits. Optional constructor to specify.
+    private Double uniqueScore = (double) 5; //raw score for first unique visit to the event for a user. Optional constructor to specify.
     //initial visit currently hardcoded as 5 points by comparison.
     
     public void MobileEvent (Integer eventIDInput){
         eventID = eventIDInput;
     }
     
-    public void MobileEvent (Integer eventIDInput, Double exponentConstant){
+    public void MobileEvent (Integer eventIDInput, Double exp_Constant){
         eventID = eventIDInput;
-        expConstant = exponentConstant;
+        expConstant = exp_Constant;
+    }
+    
+    public void MobileEvent (Integer eventIDInput, Double exp_Constant, Double unique_Score){
+        eventID = eventIDInput;
+        expConstant = exp_Constant;
+        uniqueScore = unique_Score;
     }
     
     public void Add (Integer userID, Integer nextEventID){
@@ -63,14 +70,14 @@ public class MobileEvent {
         numVisitors++;
     }
 
-    private void ScoreCalc(){
+    public void ScoreCalc(){
         lossRate = (double)(1 - (numLinks / numVisitors));
         score = lossRate * importance;
     }
     
     private Double Falloff(Integer numVisitsOneUser){
         if(numVisitsOneUser == 1){
-            return (double) 5;
+            return (double) uniqueScore;
         }
         return 1/Math.exp(numVisitsOneUser/expConstant);
     }

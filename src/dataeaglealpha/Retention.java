@@ -9,21 +9,14 @@ package dataeaglealpha;
  */
 public class Retention {
     
-    //methods:
-    //1: convert whole database
-    //2: process new batch of data
-    //3: process one LINE of data (based on DB utility for the actual transactions)
-    
-    //other classes:
-    //event nodes should be a class
-    //will contain a list of users been to the node (not each link)
-    
-    //eventually (for ARPU) may care about whole series of events,
-    
-    //NEW COMMENT
-    
-    
-    
-    
-    
+    public static void Analyze(){
+        //set up collection for mobileevents, probably list?
+        //for users{
+        //get events for user
+        //for events{
+        //mobileEvent.add one or the other method as appropriate
+        //mobileEvent.ScoreCalc
+        //find the highest scoring one
+        //save the collection of mobileevents (for future purposes, could have methods that just load this as a starting point but not yet)
+    }
 }
