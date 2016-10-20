@@ -1,0 +1,77 @@
+user_id,time,name,type
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250299,didFinishLaunching,system
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250299,didBecomeActive,system
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250300,transition:mm_center:MMDrawerController to UITabBarController,transition
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250300,transition:mm_right:MMDrawerController to SideBarViewController,transition
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250304,goToNext::EAIntroView,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250314,goToNext::EAIntroView,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250321,goToNext::EAIntroView,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250329,goToNext::EAIntroView,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250335,skipIntroduction:EAIntroView,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250341,buttonTapped::SCLAlertView,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250368,transition:showAppDetailsSegue:FeaturesViewController to AppDetailsViewController,transition
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250404,_buttonDown::UITabBar:ویژه‌ها,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250404,_buttonUp::UITabBar:ویژه‌ها,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250404,_sendAction:withEvent::UITabBar:برترین‌ها,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250404,transition:TopChartsChangedSortingSegue:TopChartViewController to CollectionListViewController,transition
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250406,_buttonDown::UITabBar:برترین‌ها,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250406,_buttonUp::UITabBar:برترین‌ها,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250406,_sendAction:withEvent::UITabBar:ویژه‌ها,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250445,transition:showAppDetailsSegue:FeaturesViewController to AppDetailsViewController,transition
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250453,transition:showAppDetailsSegue:FeaturesViewController to AppDetailsViewController,transition
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250455,segmentedControlChanged::AppDetailsViewController,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250464,createCommentPressed::AppDetailsViewController,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250464,transition:showAuthSegue:AuthPaymentMainViewController to AuthenticationViewController,transition
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250467,googleSigninPressed::AuthenticationViewController,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250474,closeButtonPressed::AuthenticationViewController,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250476,segmentedControlChanged::AppDetailsViewController,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250505,willResignActive,system
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250505,didEnterBackground,system
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250555,willEnterForeground,system
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250555,didBecomeActive,system
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250559,transition:showAppDetailsSegue:FeaturesViewController to AppDetailsViewController,transition
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250565,transition:showAppDetailsSegue:FeaturesViewController to AppDetailsViewController,transition
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250583,installPressed:PurchaseButton,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250583,willResignActive,system
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250584,didEnterBackground,system
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250587,willEnterForeground,system
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250589,didBecomeActive,system
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250591,transition:showAppDetailsSegue:FeaturesViewController to AppDetailsViewController,transition
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250600,segmentedControlChanged::AppDetailsViewController,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250609,transition:showAppDetailsSegue:FeaturesViewController to AppDetailsViewController,transition
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250616,transition:showAppDetailsSegue:FeaturesViewController to AppDetailsViewController,transition
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250620,segmentedControlChanged::AppDetailsViewController,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250638,willResignActive,system
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250639,didEnterBackground,system
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250677,willEnterForeground,system
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250677,didBecomeActive,system
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250679,_buttonDown::UITabBar:ویژه‌ها,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250679,_buttonUp::UITabBar:ویژه‌ها,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250679,_sendAction:withEvent::UITabBar:برترین‌ها,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250681,collection selected row:4 section:0,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250681,transition:showAppDetailsSegue:CollectionListViewController to AppDetailsViewController,transition
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250689,segmentedControlChanged::AppDetailsViewController,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250699,collection selected row:8 section:0,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250699,transition:showAppDetailsSegue:CollectionListViewController to AppDetailsViewController,transition
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250701,segmentedControlChanged::AppDetailsViewController,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250711,segmentedControlChanged::TopChartViewController,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250713,_buttonDown::UITabBar:برترین‌ها,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250713,_buttonUp::UITabBar:برترین‌ها,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250713,_sendAction:withEvent::UITabBar:جستجو,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250713,transition:ShowSearchResultSegue:SearchViewController to SearchResultViewController,transition
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250714,text edit began,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250714,_searchFieldBeginEditing:UISearchBar,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250718,_searchFieldEditingChanged:UISearchBar,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250718,_searchFieldEditingChanged:UISearchBar,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250718,_searchFieldEditingChanged:UISearchBar,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250719,_searchFieldEditingChanged:UISearchBar,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250719,_searchFieldEditingChanged:UISearchBar,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250720,table selected row:0 section:0,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250720,_searchFieldEndEditing:UISearchBar,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250725,collection selected row:0 section:0,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250725,transition:showAppDetailsSegue:SearchResultViewController to AppDetailsViewController,transition
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250730,installPressed:PurchaseButton,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250730,transition:showAuthSegue:AuthPaymentMainViewController to AuthenticationViewController,transition
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250732,closeButtonPressed::AuthenticationViewController,ui
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250734,willResignActive,system
+EA726C91-F03B-49BF-8F2A-D9A0180BCA9B,498250735,didEnterBackground,system

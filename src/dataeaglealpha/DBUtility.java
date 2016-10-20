@@ -113,8 +113,10 @@ public class DBUtility {
                 //!!!!!!!!!!!!!!!!!!!!!!!!!!!and then use that below for all the br.readlines to skip to, so that we can use this to upate too.
                 //then add in that bit commented below where you look once again for unique hash values in the new portions of the csv.
             }
-
+            
             //Now read everything into database
+            br = new BufferedReader(new FileReader(fileCSV));
+            line = br.readLine(); // we read the first line since it's the column names.
             int j = 0; //counter for output to terminal
             while (done == false) {
                 stmt.executeUpdate("BEGIN TRANSACTION"); //start doing batches of line entries, in blocks of linesAtOnce size lined up.
