@@ -14,8 +14,20 @@ import java.sql.ResultSet;
 import java.util.HashMap;
 import java.io.FileOutputStream;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Iterator;
+import java.util.stream.Stream;
+
+enum LoadType {
+    LoadTypeOnlyLoad,
+    LoadTypeAppend,
+    LoadTypeNew
+}
 
 /**
  *
@@ -38,25 +50,68 @@ public class DBUtility {
     private static Integer maxUserId;
     private static Integer maxEventId;
     
+    private static int linesAtOnce = 100000;
+    private static HashMap<String, Integer> stringToID = new HashMap<>();
+    private static HashMap<Integer, String> IDToString = new HashMap<>();
+    private static HashMap<String, Integer> stringToEvent = new HashMap<>();
+    private static HashMap<Integer, String> eventToString = new HashMap<>();
+
+    public static void setStringToID(HashMap<String, Integer> stringToID) {
+        DBUtility.stringToID = stringToID;
+    }
+
+    public static void setIDToString(HashMap<Integer, String> IDToString) {
+        DBUtility.IDToString = IDToString;
+    }
+
+    public static void setStringToEvent(HashMap<String, Integer> stringToEvent) {
+        DBUtility.stringToEvent = stringToEvent;
+    }
+
+    public static void setEventToString(HashMap<Integer, String> eventToString) {
+        DBUtility.eventToString = eventToString;
+    }
+    
+    private static HashMap<String, Integer> csvFileLinesRead = new HashMap<>();
+    
     public static void DBUtilityInit(String fileCSV, String fileDB) {
+        
+        maxUserId = 0;
+        maxEventId = 0;
+        
         try {
             c = DriverManager.getConnection(fileDB);
             stmt = c.createStatement();
-            maxUserId = 1;
-            maxEventId = 1;
+            String sql = "CREATE TABLE IF NOT EXISTS T(user INT, time INT, event INT, eventType INT)";
+            stmt.executeUpdate(sql);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-
+    
+    
+    
+    /**
+     * Gives the total number of users in DB
+     * @return total users
+     */
     public static Integer getMaxUserId() {
         return maxUserId;
     }
     
+    /**
+     * Gives the total number of different events.
+     * @return total events
+     */
     public static Integer getMaxEventId() {
         return maxEventId;
     }
     
+    /**
+     * Gives all the events related to a specific user.
+     * @param user The integer user id for a specific user. 
+     * @return Returns a two dimensional array of events, the first dimension being the row and second the column. Columns are in order userId, time, eventId, eventType.
+     */
     public static Integer[][] getEventsForUser(Integer user) {
         try {
             ResultSet queryResult = stmt.executeQuery("SELECT * FROM T WHERE user == '??'");
@@ -80,19 +135,121 @@ public class DBUtility {
         
     }
 
-    public static void queueField(String field) {
-        //designed to be a method for "start buffering blah blah field in java so I can start harvesting lines for basic stats and such intuitively"
-        //but not sure how relevant anymore.
+    public static void appendCSVToDatabase(String fileCSV, String fileDB) {
+        csvToDatabase(fileCSV, fileDB, LoadType.LoadTypeAppend);
     }
-
-    public static int getNextInt(String fileCSV, String fileDB) {
-        int answer = 0;
-        //have buffering transactions built in here somewhere, maybe global to the class? Hm. maybe something more different than this
-        //but want a means of just asking for the next line similr to a filereader in java, without doing all the transaction and string juggling etc. elsewhere.
-        return answer;
+    
+    public static void setupDatabaseForNewCSV(String fileCSV, String fileDB) {
+        csvToDatabase(fileCSV, fileDB, LoadType.LoadTypeNew);
     }
+    
+    public static void loadDatabase(String fileDB) {
+        csvToDatabase("", fileDB, LoadType.LoadTypeOnlyLoad);
+    }
+    
+    private static void loadCSVAndUpdateHashmaps(String fileCSV) throws FileNotFoundException, IOException {
+        
+        // the first line is the header line so we skip it.
+        loadCSVAndUpdateHashmaps(fileCSV, 1);
+        
+    }
+    
+    private static void loadCSVAndUpdateHashmaps (String fileCSV, Integer startingLine) throws FileNotFoundException, IOException {
+        
+        String delim = ",";
+        String[] varsString;
+        
+        Boolean newUserSeen = false;
+        Boolean newEventSeen = false;
+        
+        int lineCounter = startingLine;
+        
+        try (Stream<String> lines = Files.lines(Paths.get(fileCSV))) {
+            Stream<String> newLines = lines.skip(startingLine);
+            
+            for (Iterator<String> iterator = newLines.iterator(); iterator.hasNext();) {
+                String line = iterator.next();
+                lineCounter++;
+                
+                varsString = line.split(delim);
+                if (!stringToID.containsKey(varsString[0])) { //!!!!!! Note: later on when reading in new updated lines, still need to check them to see if unique and update hashes.
+                    stringToID.put(varsString[0], maxUserId);
+                    IDToString.put(maxUserId, varsString[0]);
+                    maxUserId++;
+                    newUserSeen = true;
+                }
+                if (!stringToEvent.containsKey(varsString[2])) {
+                    stringToEvent.put(varsString[2], maxEventId);
+                    eventToString.put(maxEventId, varsString[2]);
+                    maxEventId++;
+                    newEventSeen = true;
+                }
+                
+            }
+            
+            // if we've needlessly incremented the max ints decrement once at the end.
+            if (newUserSeen) maxUserId--;
+            if (newEventSeen) maxEventId--;
+            
+            // store what line we're at in the loaded file.
+            csvFileLinesRead.put(fileCSV, lineCounter);
+            
+        }
+        
+    }
+    
+    private static void loadExistingHashmaps() throws FileNotFoundException, IOException, ClassNotFoundException {
+        FileInputStream fis = new FileInputStream("stringToID.ser");
+        ObjectInputStream ois = new ObjectInputStream(fis);
+        stringToID = (HashMap) ois.readObject();
+        fis = new FileInputStream("stringToEvent.ser");
+        ois = new ObjectInputStream(fis);
+        stringToEvent = (HashMap) ois.readObject();
+        ois.close();
+        fis = new FileInputStream("IDToString.ser");
+        ois = new ObjectInputStream(fis);
+        IDToString = (HashMap) ois.readObject();
+        ois.close();
+        fis = new FileInputStream("eventToString.ser");
+        ois = new ObjectInputStream(fis);
+        eventToString = (HashMap) ois.readObject();
+        ois.close();
+        fis = new FileInputStream("csvFileLinesRead.ser");
+        ois = new ObjectInputStream(fis);
+        csvFileLinesRead = (HashMap) ois.readObject();
+        ois.close();
 
-    public static void csvToDatabase(String fileCSV, String fileDB) {
+        // we want to measure max values;
+        Integer i;
+        for (Iterator iterator = IDToString.keySet().iterator(); iterator.hasNext();) {
+            i = (Integer) iterator.next();
+            if (i > maxUserId) {
+                maxUserId = i;
+            }
+        }
+
+        for (Iterator iterator = eventToString.keySet().iterator(); iterator.hasNext();) {
+            i = (Integer) iterator.next();
+            if (i > maxEventId) {
+                maxEventId = i;
+            }
+        }
+    }
+    
+    /**
+     * Loads given CSV file into database while also setting up the hash tables,
+     * measuring maximum events and users and any other initial DB setup stuff.
+     * @param fileCSV The file address for the CSV file.
+     * @param fileDB The DB URL. For example 'jdbc:sqlite:./sibche.db'
+     * @param loadMode  0 is for loading existing things.
+     *                  1 is for creating a new DB and loading fresh CSV data
+     *                  2 is for appending CSV data to existing database.
+     */
+    public static void csvToDatabase(String fileCSV, String fileDB, LoadType loadMode) {
+        
+        // setup the DB file.
+        DBUtilityInit(fileCSV, fileDB);
+        
         BufferedReader br = null;
         String line;
         String delim = ",";
@@ -102,64 +259,35 @@ public class DBUtility {
         String sql;
         String date = "";
         Boolean done = false;
-        Boolean newDB = true; //manual entry parameter for now, testing
-        int linesAtOnce = 100000;
-        HashMap<String, Integer> stringToID = new HashMap<>();
-        HashMap<Integer, String> IDToString = new HashMap<>();
-        HashMap<String, Integer> stringToEvent = new HashMap<>();
-        HashMap<Integer, String> eventToString = new HashMap<>();
-
-        DBUtilityInit(fileCSV, fileDB);
-
+              
         try {
-            br = new BufferedReader(new FileReader(fileCSV));
-            line = br.readLine();
-            System.out.println(line);
-            if (newDB) { //Will have standardized format, so just hardcoded... all are INTs because I convet unique values to integer codes first for sanity.
-                sql = "CREATE TABLE IF NOT EXISTS T(user INT, time INT, event INT, eventType INT)";
-                stmt.executeUpdate(sql);
-                //go through and collect all the unique IDs and event names in hashmaps
-                int IDCounter = 1;
-                int EventCounter = 1;
-                while ((line = br.readLine()) != null) {
-                    varsString = line.split(delim);
-                    if (!stringToID.containsKey(varsString[0])) { //!!!!!! Note: later on when reading in new updated lines, still need to check them to see if unique and update hashes.
-                        stringToID.put(varsString[0], IDCounter);
-                        IDToString.put(IDCounter, varsString[0]);
-                        IDCounter++;
-                    }
-                    if (!stringToEvent.containsKey(varsString[2])) {
-                        stringToEvent.put(varsString[2], EventCounter);
-                        eventToString.put(EventCounter, varsString[2]);
-                        EventCounter++;
-                    }
-                }
+            if (loadMode == LoadType.LoadTypeNew) { //Will have standardized format, so just hardcoded... all are INTs because I convet unique values to integer codes first for sanity.
+                // if we have a new file or are appending new 
+                
+                loadCSVAndUpdateHashmaps(fileCSV);
+                
             } else { //load up existing hashmaps
-                try {
-                    FileInputStream fis = new FileInputStream("stringToID.ser");
-                    ObjectInputStream ois = new ObjectInputStream(fis);
-                    stringToID = (HashMap) ois.readObject();
-                    fis = new FileInputStream("stringToEvent.ser");
-                    ois = new ObjectInputStream(fis);
-                    stringToEvent = (HashMap) ois.readObject();
-                    ois.close();
-                    fis = new FileInputStream("IDToString.ser");
-                    ois = new ObjectInputStream(fis);
-                    IDToString = (HashMap) ois.readObject();
-                    ois.close();
-                    fis = new FileInputStream("eventToString.ser");
-                    ois = new ObjectInputStream(fis);
-                    eventToString = (HashMap) ois.readObject();
-                    ois.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                
+                loadExistingHashmaps();
+                
                 //###########################add something that finds out what line new content begins at (larger time value than in database)
                 //!!!!!!!!!!!!!!!!!!!!!!!!!!!and then use that below for all the br.readlines to skip to, so that we can use this to upate too.
                 //then add in that bit commented below where you look once again for unique hash values in the new portions of the csv.
                 //add indexing again.
+                if (loadMode == LoadType.LoadTypeAppend) {
+                    // if we're appending to existing data then we want to load 
+                    //  our CSV file from a certain line.
+                    
+                    if (csvFileLinesRead.containsKey(fileCSV)) {
+                        Integer lineNumber = csvFileLinesRead.get(fileCSV);
+                        loadCSVAndUpdateHashmaps(fileCSV, lineNumber);
+                    }else {
+                        // if we've never seen the file before then go ahead read it from the start.
+                        loadCSVAndUpdateHashmaps(fileCSV);
+                    }  
+                }
             }
-            
+                
             //Now read everything into database
             br = new BufferedReader(new FileReader(fileCSV));
             line = br.readLine(); // we read the first line since it's the column names.
@@ -214,40 +342,36 @@ public class DBUtility {
                 }
             }
         }
+        
         //Now save the hashmaps to disk
         try {
-            FileOutputStream fos = new FileOutputStream("stringToID.ser");
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(stringToID);
-            oos.close();
-            fos = new FileOutputStream("stringToEvent.ser");
-            oos = new ObjectOutputStream(fos);
-            oos.writeObject(stringToEvent);
-            oos.close();
-            fos = new FileOutputStream("IDToString.ser");
-            oos = new ObjectOutputStream(fos);
-            oos.writeObject(IDToString);
-            oos.close();
-            fos = new FileOutputStream("eventToString.ser");
-            oos = new ObjectOutputStream(fos);
-            oos.writeObject(eventToString);
-            oos.close();
+            saveHashmapsToDisk();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
-    //"Connect" to a database, weird stuff that is acting like it's on a server farm:
-    public static void createNewDatabase(String fileName, String dir) {
-
-        String url = dir + fileName;
-
-        try (Connection conn = DriverManager.getConnection(url)) {
-            if (conn != null) {
-                DatabaseMetaData meta = conn.getMetaData();
-            }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
+    
+    private static void saveHashmapsToDisk() throws FileNotFoundException, IOException {
+        FileOutputStream fos = new FileOutputStream("stringToID.ser");
+        ObjectOutputStream oos = new ObjectOutputStream(fos);
+        oos.writeObject(stringToID);
+        oos.close();
+        fos = new FileOutputStream("stringToEvent.ser");
+        oos = new ObjectOutputStream(fos);
+        oos.writeObject(stringToEvent);
+        oos.close();
+        fos = new FileOutputStream("IDToString.ser");
+        oos = new ObjectOutputStream(fos);
+        oos.writeObject(IDToString);
+        oos.close();
+        fos = new FileOutputStream("eventToString.ser");
+        oos = new ObjectOutputStream(fos);
+        oos.writeObject(eventToString);
+        oos.close();
+        fos = new FileOutputStream("csvFileLinesRead.ser");
+        oos = new ObjectOutputStream(fos);
+        oos.writeObject(csvFileLinesRead);
+        oos.close();
     }
+
 }
