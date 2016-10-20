@@ -35,17 +35,29 @@ public class DBUtility {
 
     private static Connection c;
     private static Statement stmt;
-
+    private static Integer maxUserId;
+    private static Integer maxEventId;
+    
     public static void DBUtilityInit(String fileCSV, String fileDB) {
         try {
             c = DriverManager.getConnection(fileDB);
             stmt = c.createStatement();
+            maxUserId = 1;
+            maxEventId = 1;
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public static Integer[][] getUser(Integer user) {
+    public static Integer getMaxUserId() {
+        return maxUserId;
+    }
+    
+    public static Integer getMaxEventId() {
+        return maxEventId;
+    }
+    
+    public static Integer[][] getEventsForUser(Integer user) {
         try {
             ResultSet queryResult = stmt.executeQuery("SELECT * FROM T WHERE user == '??'");
             System.out.println(queryResult.getInt(0));

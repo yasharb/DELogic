@@ -4,7 +4,7 @@ package dataeaglealpha;
 public class DataEagleAlpha {
 
     public static void main(String[] args) {
-        DBUtility dbu = new DBUtility();
+        
         //maybe have it read directories from wherever IT is, or from a config or whatever later.
         DBUtility.createNewDatabase("sibche.db", "jdbc:sqlite:./");
         DBUtility.csvToDatabase("./sibche2.csv","jdbc:sqlite:./sibche.db");
