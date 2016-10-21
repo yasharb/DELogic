@@ -363,7 +363,7 @@ public class DBUtility {
                         loadCSVAndUpdateHashmaps(fileCSV, lineNumber);
                         addEventsToDB(fileCSV, lineNumber);
                     }else {
-                        // if we've never seen the file before then go ahead read it from the start.
+                        // if we've never seen the file before then go ahead read it from the start and just add to current DB.
                         loadCSVAndUpdateHashmaps(fileCSV);
                         addEventsToDB(fileCSV, 1);
                     }  
