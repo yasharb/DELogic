@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Vector;
 
 /**
  *
@@ -112,12 +113,12 @@ public class RetentionAnalysis {
         MobileEvent event;
         System.out.println(DBUtility.getMaxUserId());
         for (int i = 0; i <= DBUtility.getMaxUserId(); i++) { //iterate over users
-            Integer[][] userArray = DBUtility.getEventsForUser(i);
-            for (int j = 0; j < userArray.length; j++) { //iterate over events
-                if (j < userArray.length) { //user went somewhere after this event
-                    System.out.println("len"+userArray.length);
+            Vector<Vector<Integer>> userArray = DBUtility.getEventsForUser(i);
+            for (int j = 0; j < userArray.size(); j++) { //iterate over events
+                if (j < userArray.size()) { //user went somewhere after this event
+                    System.out.println("len"+userArray.size());
                     System.out.println("j"+j);
-                    System.out.println("len2nd"+userArray[j].length);
+                    System.out.println("len2nd"+userArray[j].size());
                     if (eventsList.containsKey(userArray[j][2])) {
                         System.out.println("1");
                         event = eventsList.get(j);

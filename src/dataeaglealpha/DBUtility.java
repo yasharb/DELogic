@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.stream.Stream;
+import java.util.Vector;
 
 enum LoadType {
     LoadTypeOnlyLoad,
@@ -135,30 +136,24 @@ public class DBUtility {
      * @param user The integer user id for a specific user. 
      * @return Returns a two dimensional array of events, the first dimension being the row and second the column. Columns are in order userId, time, eventId, eventType.
      */
-    public static Integer[][] getEventsForUser(Integer user) {
-        Integer[][] test = new Integer[100][4];
+    public static Vector<Vector<Integer>> getEventsForUser(Integer user) {
+        Vector<Vector<Integer>> dataBlock = new Vector<Vector<Integer>>();
+        Vector<Integer> row = new Vector<Integer>();
         try {
-            ResultSet queryResult = stmt.executeQuery("SELECT * FROM T WHERE user == '??'");
-            int row = queryResult.getRow();
-            System.out.println("row:"+row);
-            System.out.println(queryResult.getInt(0));
-            System.out.println(queryResult.getInt(1));
-            System.out.println(queryResult.getInt(2));
-            System.out.println(queryResult.getInt(3));
-            queryResult.next();
-            System.out.println(queryResult.getInt(0));
-            System.out.println(queryResult.getInt(1));
-            System.out.println(queryResult.getInt(2));
-            System.out.println(queryResult.getInt(3));
+            ResultSet queryResult = stmt.executeQuery("SELECT * FROM T WHERE user = " + user);
+            row = new Vector<Integer>();
+            while (queryResult.next()==true){
+                row.add(queryResult.getInt(1));
+                row.add(queryResult.getInt(2));
+                row.add(queryResult.getInt(3));
+                row.add(queryResult.getInt(4));
+                dataBlock.add(row);
+            }
             queryResult.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        //Integer[][] answer = new Integer[queryResult.][];
-        Integer[][] test = new Integer[1][1];
-        test[0][0] = 5;
-        return test;
-        
+        return dataBlock;
     }
 
     public static void appendCSVToDatabase(String fileCSV, String fileDB) {
