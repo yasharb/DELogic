@@ -56,20 +56,20 @@ public class DBUtility {
     private static HashMap<String, Integer> stringToEvent = new HashMap<>();
     private static HashMap<Integer, String> eventToString = new HashMap<>();
 
-    public static void setStringToID(HashMap<String, Integer> stringToID) {
-        DBUtility.stringToID = stringToID;
+    public static HashMap<String, Integer> getStringToID() {
+        return stringToID;
     }
 
-    public static void setIDToString(HashMap<Integer, String> IDToString) {
-        DBUtility.IDToString = IDToString;
+    public static HashMap<Integer, String> getIDToString() {
+        return IDToString;
     }
 
-    public static void setStringToEvent(HashMap<String, Integer> stringToEvent) {
-        DBUtility.stringToEvent = stringToEvent;
+    public static HashMap<String, Integer> getStringToEvent() {
+        return stringToEvent;
     }
 
-    public static void setEventToString(HashMap<Integer, String> eventToString) {
-        DBUtility.eventToString = eventToString;
+    public static HashMap<Integer, String> getEventToString() {
+        return eventToString;
     }
     
     private static HashMap<String, Integer> csvFileLinesRead = new HashMap<>();
@@ -263,6 +263,8 @@ public class DBUtility {
         try {
             if (loadMode == LoadType.LoadTypeNew) { //Will have standardized format, so just hardcoded... all are INTs because I convet unique values to integer codes first for sanity.
                 // if we have a new file or are appending new 
+                
+                //TODO: clear out existing DB
                 
                 loadCSVAndUpdateHashmaps(fileCSV);
                 
