@@ -27,6 +27,10 @@ public class DataEagleAlpha {
                     break;
                 case "new":
                     DBUtility.setupDatabaseForNewCSV(csvFileAdd, dbUrl);
+                    RetentionAnalysis ret = new RetentionAnalysis();
+                    ret.calcBottle(3,"willResignActive","didEnterBackground");
+                    System.out.println(ret.getHighScores());
+                    System.out.println(ret.getBottlenecks());
                     break;
             }
         }
