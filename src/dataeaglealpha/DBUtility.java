@@ -136,8 +136,11 @@ public class DBUtility {
      * @return Returns a two dimensional array of events, the first dimension being the row and second the column. Columns are in order userId, time, eventId, eventType.
      */
     public static Integer[][] getEventsForUser(Integer user) {
+        Integer[][] test = new Integer[100][4];
         try {
             ResultSet queryResult = stmt.executeQuery("SELECT * FROM T WHERE user == '??'");
+            int row = queryResult.getRow();
+            System.out.println("row:"+row);
             System.out.println(queryResult.getInt(0));
             System.out.println(queryResult.getInt(1));
             System.out.println(queryResult.getInt(2));
@@ -147,7 +150,7 @@ public class DBUtility {
             System.out.println(queryResult.getInt(1));
             System.out.println(queryResult.getInt(2));
             System.out.println(queryResult.getInt(3));
-            queryResult.next();
+            queryResult.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }

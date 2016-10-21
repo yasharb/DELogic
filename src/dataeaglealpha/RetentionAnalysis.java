@@ -115,6 +115,9 @@ public class RetentionAnalysis {
             Integer[][] userArray = DBUtility.getEventsForUser(i);
             for (int j = 0; j < userArray.length; j++) { //iterate over events
                 if (j < userArray.length) { //user went somewhere after this event
+                    System.out.println("len"+userArray.length);
+                    System.out.println("j"+j);
+                    System.out.println("len2nd"+userArray[j].length);
                     if (eventsList.containsKey(userArray[j][2])) {
                         System.out.println("1");
                         event = eventsList.get(j);
