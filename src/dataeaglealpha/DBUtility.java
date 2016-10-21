@@ -6,7 +6,6 @@ package dataeaglealpha;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -55,6 +54,17 @@ public class DBUtility {
     private static HashMap<Integer, String> IDToString = new HashMap<>();
     private static HashMap<String, Integer> stringToEvent = new HashMap<>();
     private static HashMap<Integer, String> eventToString = new HashMap<>();
+    
+    private static HashMap<Integer, String> eventTypeToString = new HashMap<>();
+    private static HashMap<String, Integer> stringToEventType = new HashMap<>();
+
+    public static HashMap<Integer, String> getEventTypeToString() {
+        return eventTypeToString;
+    }
+
+    public static HashMap<String, Integer> getStringToEventType() {
+        return stringToEventType;
+    }
 
     public static HashMap<String, Integer> getStringToID() {
         return stringToID;
@@ -74,16 +84,29 @@ public class DBUtility {
     
     private static HashMap<String, Integer> csvFileLinesRead = new HashMap<>();
     
-    public static void DBUtilityInit(String fileCSV, String fileDB) {
+    public static void DBUtilityInit(String fileCSV, String fileDB, LoadType loadMode) {
         
         maxUserId = 0;
         maxEventId = 0;
         
         try {
+            
             c = DriverManager.getConnection(fileDB);
             stmt = c.createStatement();
+            
+            if (loadMode == LoadType.LoadTypeNew) {
+                // delete old table.
+                stmt.executeUpdate("DROP TABLE IF EXISTS T");
+            }
+            
             String sql = "CREATE TABLE IF NOT EXISTS T(user INT, time INT, event INT, eventType INT)";
             stmt.executeUpdate(sql);
+            
+            if (loadMode == LoadType.LoadTypeNew) {
+                // add indices 
+                stmt.executeUpdate("CREATE INDEX user ON T (user)");
+                stmt.executeUpdate("CREATE INDEX event ON T (event)"); 
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -163,6 +186,7 @@ public class DBUtility {
         Boolean newEventSeen = false;
         
         int lineCounter = startingLine;
+        int eventTypeCounter = 0;
         
         try (Stream<String> lines = Files.lines(Paths.get(fileCSV))) {
             Stream<String> newLines = lines.skip(startingLine);
@@ -184,6 +208,12 @@ public class DBUtility {
                     maxEventId++;
                     newEventSeen = true;
                 }
+                if (!stringToEventType.containsKey(varsString[3])) {
+                    stringToEventType.put(varsString[3], eventTypeCounter);
+                    eventTypeToString.put(eventTypeCounter, varsString[3]);
+                    eventTypeCounter++;
+                    
+                }
                 
             }
             
@@ -194,31 +224,28 @@ public class DBUtility {
             // store what line we're at in the loaded file.
             csvFileLinesRead.put(fileCSV, lineCounter);
             
+            newLines.close();
         }
         
     }
     
-    private static void loadExistingHashmaps() throws FileNotFoundException, IOException, ClassNotFoundException {
-        FileInputStream fis = new FileInputStream("stringToID.ser");
+    private static void loadMapFile(HashMap map, String fileName) throws FileNotFoundException, IOException, ClassNotFoundException {
+        FileInputStream fis = new FileInputStream(fileName);
         ObjectInputStream ois = new ObjectInputStream(fis);
-        stringToID = (HashMap) ois.readObject();
-        fis = new FileInputStream("stringToEvent.ser");
-        ois = new ObjectInputStream(fis);
-        stringToEvent = (HashMap) ois.readObject();
+        map = (HashMap) ois.readObject();
         ois.close();
-        fis = new FileInputStream("IDToString.ser");
-        ois = new ObjectInputStream(fis);
-        IDToString = (HashMap) ois.readObject();
-        ois.close();
-        fis = new FileInputStream("eventToString.ser");
-        ois = new ObjectInputStream(fis);
-        eventToString = (HashMap) ois.readObject();
-        ois.close();
-        fis = new FileInputStream("csvFileLinesRead.ser");
-        ois = new ObjectInputStream(fis);
-        csvFileLinesRead = (HashMap) ois.readObject();
-        ois.close();
-
+        fis.close();
+    }
+    
+    private static void loadExistingHashmaps() throws FileNotFoundException, IOException, ClassNotFoundException {
+        loadMapFile(stringToID, "stringToID.ser");
+        loadMapFile(IDToString, "IDToString.ser");
+        loadMapFile(stringToEvent, "stringToEvent.ser");
+        loadMapFile(eventToString, "eventToString.ser");
+        loadMapFile(csvFileLinesRead, "csvFileLinesRead.ser");
+        loadMapFile(stringToEventType, "stringToEventType.ser");
+        loadMapFile(eventTypeToString, "eventTypeToString.ser");
+        
         // we want to measure max values;
         Integer i;
         for (Iterator iterator = IDToString.keySet().iterator(); iterator.hasNext();) {
@@ -234,6 +261,63 @@ public class DBUtility {
                 maxEventId = i;
             }
         }
+        
+        System.out.println(maxEventId);
+    }
+    
+    private static void addEventsToDB(String fileCSV, Integer startingLine) throws FileNotFoundException, IOException, SQLException {
+        
+        String line;
+        String delim = ",";
+        String[] varsString;
+        Integer[] varsInt = new Integer[4];
+        String sqlAppend;
+        String sql;
+        String date = "";
+        Boolean done = false;
+        int j = 0; //counter for output to terminal
+        int lineCounter = 0;
+        try (Stream<String> lines = Files.lines(Paths.get(fileCSV))) {
+            Stream<String> newLines = lines.skip(startingLine);
+            
+            stmt.executeUpdate("BEGIN TRANSACTION");
+            
+            for (Iterator<String> iterator = newLines.iterator(); iterator.hasNext();) {
+                line = iterator.next();
+                
+                sqlAppend = "";
+                varsString = line.split(delim);
+                varsInt[0] = stringToID.get(varsString[0]);
+                varsInt[1] = Integer.parseInt(varsString[1]);
+                varsInt[2] = stringToEvent.get(varsString[2]);
+                varsInt[3] = stringToEventType.get(varsString[3]);
+
+                for (int i = 0; i < (varsInt.length); i++) {
+                    if (i != varsInt.length - 1) {
+                        sqlAppend = sqlAppend + " " + Integer.toString(varsInt[i]) + ",";
+                    } else {
+                        sqlAppend = sqlAppend + " " + Integer.toString(varsInt[i]);
+                    }
+                }
+                sql = "INSERT INTO T VALUES(" + sqlAppend + ")";
+                stmt.executeUpdate(sql);
+                
+                j++;
+                lineCounter++;
+                // check to see if we've reached commit limit and if so do a commit.
+                if (lineCounter > linesAtOnce) {
+                    // do commit.
+                    stmt.executeUpdate("COMMIT");
+                    stmt.executeUpdate("BEGIN TRANSACTION");
+                }
+            }
+            
+            stmt.executeUpdate("COMMIT");
+            newLines.close();
+        }
+        
+        System.out.println(j);
+       
     }
     
     /**
@@ -248,9 +332,8 @@ public class DBUtility {
     public static void csvToDatabase(String fileCSV, String fileDB, LoadType loadMode) {
         
         // setup the DB file.
-        DBUtilityInit(fileCSV, fileDB);
+        DBUtilityInit(fileCSV, fileDB, loadMode);
         
-        BufferedReader br = null;
         String line;
         String delim = ",";
         String[] varsString;
@@ -263,19 +346,13 @@ public class DBUtility {
         try {
             if (loadMode == LoadType.LoadTypeNew) { //Will have standardized format, so just hardcoded... all are INTs because I convet unique values to integer codes first for sanity.
                 // if we have a new file or are appending new 
-                
-                //TODO: clear out existing DB
-                
                 loadCSVAndUpdateHashmaps(fileCSV);
+                addEventsToDB(fileCSV, 1);
                 
             } else { //load up existing hashmaps
                 
                 loadExistingHashmaps();
                 
-                //###########################add something that finds out what line new content begins at (larger time value than in database)
-                //!!!!!!!!!!!!!!!!!!!!!!!!!!!and then use that below for all the br.readlines to skip to, so that we can use this to upate too.
-                //then add in that bit commented below where you look once again for unique hash values in the new portions of the csv.
-                //add indexing again.
                 if (loadMode == LoadType.LoadTypeAppend) {
                     // if we're appending to existing data then we want to load 
                     //  our CSV file from a certain line.
@@ -283,68 +360,18 @@ public class DBUtility {
                     if (csvFileLinesRead.containsKey(fileCSV)) {
                         Integer lineNumber = csvFileLinesRead.get(fileCSV);
                         loadCSVAndUpdateHashmaps(fileCSV, lineNumber);
+                        addEventsToDB(fileCSV, lineNumber);
                     }else {
                         // if we've never seen the file before then go ahead read it from the start.
                         loadCSVAndUpdateHashmaps(fileCSV);
+                        addEventsToDB(fileCSV, 1);
                     }  
                 }
             }
-                
-            //Now read everything into database
-            br = new BufferedReader(new FileReader(fileCSV));
-            line = br.readLine(); // we read the first line since it's the column names.
-            int j = 0; //counter for output to terminal
-            while (done == false) {
-                stmt.executeUpdate("BEGIN TRANSACTION"); //start doing batches of line entries, in blocks of linesAtOnce size lined up.
-                for (int k = 0; k < linesAtOnce; k++) {
-                    if ((line = br.readLine()) != null) { //boring text parsing for lines:
-                        j++;
-                        sqlAppend = "";
-                        varsString = line.split(delim);
-                        varsInt[0] = stringToID.get(varsString[0]);
-                        varsInt[1] = Integer.parseInt(varsString[1]);
-                        varsInt[2] = stringToEvent.get(varsString[2]);
-                        if (varsString[3].equals("ui")) {
-                            varsInt[3] = 1;
-                        } else if (varsString[3].equals("system")) {
-                            varsInt[3] = 2;
-                        } else if (varsString[3].equals("transition")) {
-                            varsInt[3] = 3;
-                        } else {
-                            System.out.println("Invalid/Unknown event type encountered!");
-                        }
-                        for (int i = 0; i < (varsInt.length); i++) {
-                            if (i != varsInt.length - 1) {
-                                sqlAppend = sqlAppend + " " + Integer.toString(varsInt[i]) + ",";
-                            } else {
-                                sqlAppend = sqlAppend + " " + Integer.toString(varsInt[i]);
-                            }
-                        }
-                        sql = "INSERT INTO T VALUES(" + sqlAppend + ")";
-                        stmt.executeUpdate(sql);
-                    } else {
-                        done = true;
-                    }
-                }
-                stmt.executeUpdate("COMMIT");
-                System.out.println(j);
-            }
-            stmt.executeUpdate("CREATE INDEX user ON T (user)");
-            stmt.executeUpdate("CREATE INDEX event ON T (event)");
-            stmt.close();
-            c.close();
+            
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        
+        } 
         //Now save the hashmaps to disk
         try {
             saveHashmapsToDisk();
@@ -353,27 +380,22 @@ public class DBUtility {
         }
     }
     
-    private static void saveHashmapsToDisk() throws FileNotFoundException, IOException {
-        FileOutputStream fos = new FileOutputStream("stringToID.ser");
+    private static void saveMapFile(HashMap map, String filename) throws FileNotFoundException, IOException {
+        FileOutputStream fos = new FileOutputStream(filename);
         ObjectOutputStream oos = new ObjectOutputStream(fos);
-        oos.writeObject(stringToID);
+        oos.writeObject(map);
         oos.close();
-        fos = new FileOutputStream("stringToEvent.ser");
-        oos = new ObjectOutputStream(fos);
-        oos.writeObject(stringToEvent);
-        oos.close();
-        fos = new FileOutputStream("IDToString.ser");
-        oos = new ObjectOutputStream(fos);
-        oos.writeObject(IDToString);
-        oos.close();
-        fos = new FileOutputStream("eventToString.ser");
-        oos = new ObjectOutputStream(fos);
-        oos.writeObject(eventToString);
-        oos.close();
-        fos = new FileOutputStream("csvFileLinesRead.ser");
-        oos = new ObjectOutputStream(fos);
-        oos.writeObject(csvFileLinesRead);
-        oos.close();
+        fos.close();
+    }
+    
+    private static void saveHashmapsToDisk() throws FileNotFoundException, IOException {
+        saveMapFile(stringToID, "stringToID.ser");
+        saveMapFile(IDToString, "IDToString.ser");
+        saveMapFile(stringToEvent, "stringToEvent.ser");
+        saveMapFile(eventToString, "eventToString.ser");
+        saveMapFile(csvFileLinesRead, "csvFileLinesRead.ser");
+        saveMapFile(stringToEventType, "stringToEventType.ser");
+        saveMapFile(eventTypeToString, "eventTypeToString.ser");
     }
 
 }
