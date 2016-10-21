@@ -229,22 +229,23 @@ public class DBUtility {
         
     }
     
-    private static void loadMapFile(HashMap map, String fileName) throws FileNotFoundException, IOException, ClassNotFoundException {
+    private static HashMap loadMapFile(HashMap map, String fileName) throws FileNotFoundException, IOException, ClassNotFoundException {
         FileInputStream fis = new FileInputStream(fileName);
         ObjectInputStream ois = new ObjectInputStream(fis);
         map = (HashMap) ois.readObject();
         ois.close();
         fis.close();
+        return map;
     }
     
     private static void loadExistingHashmaps() throws FileNotFoundException, IOException, ClassNotFoundException {
-        loadMapFile(stringToID, "stringToID.ser");
-        loadMapFile(IDToString, "IDToString.ser");
-        loadMapFile(stringToEvent, "stringToEvent.ser");
-        loadMapFile(eventToString, "eventToString.ser");
-        loadMapFile(csvFileLinesRead, "csvFileLinesRead.ser");
-        loadMapFile(stringToEventType, "stringToEventType.ser");
-        loadMapFile(eventTypeToString, "eventTypeToString.ser");
+        stringToID = loadMapFile(stringToID, "stringToID.ser");
+        IDToString = loadMapFile(IDToString, "IDToString.ser");
+        stringToEvent = loadMapFile(stringToEvent, "stringToEvent.ser");
+        eventToString = loadMapFile(eventToString, "eventToString.ser");
+        csvFileLinesRead = loadMapFile(csvFileLinesRead, "csvFileLinesRead.ser");
+        stringToEventType = loadMapFile(stringToEventType, "stringToEventType.ser");
+        eventTypeToString = loadMapFile(eventTypeToString, "eventTypeToString.ser");
         
         // we want to measure max values;
         Integer i;
