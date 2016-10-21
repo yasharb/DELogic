@@ -4,23 +4,23 @@ package dataeaglealpha;
 public class DataEagleAlpha {
 
     public static void main(String[] args) {
-        
+
         if (args.length < 1) {
             //maybe have it read directories from wherever IT is, or from a config or whatever later.
             System.out.println("No input arguments provided, defaulting to loading existing DB");
             DBUtility.loadDatabase("jdbc:sqlite:./appEvents.db");
-        
-        }else {
-            
+
+        } else {
+
             String csvFileAdd = "./sibche2.csv";
             String dbUrl = "jdbc:sqlite:./appEvents.db";
-            
+
             if (args.length < 2) {
                 System.out.println("CSV file address not provided, using default test file 'sibche2.csv'.");
-            }else {
-               csvFileAdd = args[1]; 
+            } else {
+                csvFileAdd = args[1];
             }
-                  
+
             switch (args[0]) {
                 case "add":
                     DBUtility.appendCSVToDatabase(csvFileAdd, dbUrl);
@@ -30,8 +30,13 @@ public class DataEagleAlpha {
                     break;
             }
         }
-        
-        
+
+        //testing
+        RetentionAnalysis ret = new RetentionAnalysis();
+        ret.calcBottle(3, "willResignActive", "didEnterBackground");
+        System.out.println(ret.getHighScores());
+        System.out.println(ret.getBottlenecks());
+
         //Start for now with a variable of interest, more like ARPU case
         //Find correlations in general for users?
         //Find immediately preceding events
